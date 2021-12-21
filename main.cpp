@@ -3,6 +3,7 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <vector>
 #include <climits>
 
 // using namespace std;
@@ -24,7 +25,12 @@ protected:
   std::string lastName;
 
 public:
-  void setVariables(int empID, std::string fName, std::string lName, int stat, int rate, int hrs) {
+  void setVariables(int empID,
+                    std::string fName,
+                    std::string lName,
+                    int stat,
+                    int rate,
+                    int hrs) {
     employeeID = empID;
     firstName = fName;
     lastName = lName;
@@ -42,6 +48,7 @@ public:
 
 // public:
   virtual double calculateGrossPay(void) = 0;
+  virtual void tell(void) const = 0;
 
   double calculateTaxAmount(void) {
     taxRate = .30; //set a flat taxrate 30%
@@ -66,13 +73,15 @@ public:
               << std::setw(10) << grossPay
               << std::setw( 8) << netPay
               << std::setw( 8) << otPay
+              << std::setw( 7) << ((payStat == 2) ? "Sal" : "Hr")
               << std::endl;
   } //end printData() function
 };  //end employee class
 
 class employeeSalary : public employee {
 public:
-  double calculateGrossPay(void) {
+  virtual
+  double calculateGrossPay(void) override {
     std::cout << "employeeSalary::" << __func__ << "()\n";
 
     double regPay = salary / 52;
@@ -91,11 +100,17 @@ public:
 
     return grossPay;
   }
+
+  virtual
+  void tell(void) const override {
+    std::cout << "employeeSalary::" << __func__ << "()\n";
+  }
 };  //end EmployeeSalary class 
 
 class employeeHourly : public employee {
-public: 
-  double calculateGrossPay() {
+public:
+  virtual
+  double calculateGrossPay(void) override {
     std::cout << "employeeHourly::" << __func__ << "()\n";
 
     const double regPay = (40 * hourlyRate);//calculate regular hours
@@ -111,6 +126,11 @@ public:
     }//end else clause for four hours
     return grossPay;
   } //end calculateGrossPay() function
+
+  virtual
+  void tell(void) const override {
+    std::cout << "employeeHourly::" << __func__ << "()\n";
+  }
 };  //end EmployeeHourly class
 
 int main(int argc, char const * argv[]) {
@@ -123,6 +143,7 @@ int main(int argc, char const * argv[]) {
   int rate = 0;
   int hrs = 0;
 
+#ifdef INTERACTIVE_
   std::cout << "Enter # of employees you want to process:  ";
   std::cin >> totalEmployeeCount;
 
@@ -219,15 +240,63 @@ int main(int argc, char const * argv[]) {
       employeeCounter++;
     } //end else
   }//end while
+#else   /* INTERACTIVE_ */
+  employee * employee[100];
+  employeeCounter = 0;
 
+  struct sampledata {
+    int empId;
+    std::string forname;
+    std::string surname;
+    int rate;
+    int stat;
+    int hrs;
+  };
+
+  std::vector<sampledata> const sdata {
+    { 11, "Norma", "Snockers", 26, 2, 40, },
+    { 21, "Irma",  "Naliias",  15, 1, 50, },
+  };
+
+  for (auto const & sd : sdata) {
+    fName = sd.forname;
+    lName = sd.surname;
+    empID = sd.empId;;
+    stat = sd.stat;
+    rate = sd.rate;
+    hrs = sd.hrs;
+
+    if (stat == 2) {
+      employee[employeeCounter] = new employeeSalary();
+    }
+    else {
+      employee[employeeCounter] = new employeeHourly();
+    }
+
+    employee[employeeCounter]->tell();
+
+    employee[employeeCounter]->setVariables(empID, fName, lName, stat,rate, hrs);
+    std::cout <<
+    employee[employeeCounter]->calculateGrossPay() << '\n';
+    std::cout <<
+    employee[employeeCounter]->calculateTaxAmount() << '\n';
+    std::cout <<
+    employee[employeeCounter]->calculateNetPay() << '\n';
+
+    employeeCounter++;
+  }
+
+#endif  /* INTERACTIVE_ */
+
+  auto dlm = std::string(76, '-');
   std::cout << std::setw(45) << "-PAYROLL REPORT-"
             << std::endl;
-  std::cout << "------------------------------------------------------------------------------"
+  std::cout << dlm
             << std::endl;
   std::cout << "F-NAME  L-NAME    EMPLOYEE-ID    HW   OT-HOURS  GROSS"
     "    TAX   NETPAY        "
             << std::endl;
-  std::cout << "------------------------------------------------------------------------------"
+  std::cout << dlm
             << std::endl; 
   // end printHeader() function
 
@@ -235,7 +304,8 @@ int main(int argc, char const * argv[]) {
     employee[ i_ ]->printData();
   }
 
-  std::cout << "-----------------------------------------\n";
+  std::cout << dlm
+            << std::endl;
 
   return 0;
 } //end main
