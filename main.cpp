@@ -232,6 +232,102 @@ public:
 //  ----+----|----+----|----+----|----+----|----+----|----+----|
 
 #ifdef INTERACTIVE_
+static
+size_t interactiveLoad(size_t nr, employee * employees[]);
+
+#else   /* INTERACTIVE_ */
+
+static
+size_t discreteLoad(size_t nr, employee * employees[]);
+static
+size_t discreteLoad(std::vector<employee *> & empvec);
+
+#endif  /* INTERACTIVE_ */
+
+static
+auto dlm = std::string(76, '-');
+
+void printHeader(void);
+void showResults(size_t employeeCounter, employee * employees[]);
+void showResults(std::vector<employee *> & empvec);
+
+//  ----+----|----+----|----+----|----+----|----+----|----+----|
+/*
+ *  MARK: main()
+ */
+int main(int argc, char const * argv[]) {
+
+  size_t employeeCounter = 0;
+
+  employee * employees[100];
+
+#ifdef INTERACTIVE_
+
+  employeeCounter = interactiveLoad(100, employees);
+
+#else   /* INTERACTIVE_ */
+
+  employeeCounter = discreteLoad(100, employees);
+
+  auto empvec = std::vector<employee *>();
+  discreteLoad(empvec);
+  // std::vector<employeeHourly *> empvec;
+
+#endif  /* INTERACTIVE_ */
+
+  printHeader();
+  showResults(employeeCounter, employees);
+
+  std::cout << dlm
+            << std::endl;
+
+#ifndef INTERACTIVE_
+  std::cout << "\n\n";
+
+  printHeader();
+  showResults(empvec);
+
+  std::cout << dlm
+            << std::endl;
+
+#endif  /* INTERACTIVE_ */
+
+  return 0;
+} //end main
+
+void printHeader(void) {
+  std::cout << '\n';
+  std::cout << std::setw(45) << "-PAYROLL REPORT-"
+            << std::endl;
+  std::cout << dlm
+            << std::endl;
+  std::cout << "F-NAME"
+               "  L-NAME"
+               "    EMPLOYEE-ID"
+               "    HW"
+               "   OT-HOURS"
+               "  GROSS"
+               "    TAX"
+               "   NETPAY"
+            << std::endl;
+  std::cout << dlm
+            << std::endl; 
+  // end printHeader() function
+}
+
+void showResults(size_t employeeCounter, employee * employees[]) {
+  for (size_t i_ = 0; i_ < employeeCounter; ++i_) {
+    employees[ i_ ]->printData();
+  }
+}
+
+void showResults(std::vector<employee *> & empvec) {
+  for (auto const em : empvec) {
+    em->printData();
+  }
+}
+
+#ifdef INTERACTIVE_
 
 static
 size_t interactiveLoad(size_t nr, employee * employees[]) {
@@ -284,12 +380,9 @@ size_t interactiveLoad(size_t nr, employee * employees[]) {
       employees[employeeCounter] = new employeeHourly();
 
       employees[employeeCounter]->setVariables( empID, fName, lName, stat, rate, hrs );
-      std::cout <<
-      employees[employeeCounter]->calculateGrossPay() << '\n';
-      std::cout <<
-      employees[employeeCounter]->calculateTaxAmount() << '\n';
-      std::cout <<
-      employees[employeeCounter]->calculateNetPay() << '\n';
+      employees[employeeCounter]->calculateGrossPay();
+      employees[employeeCounter]->calculateTaxAmount();
+      employees[employeeCounter]->calculateNetPay();
 
       std::cout << std::endl
                 << std::endl;
@@ -389,12 +482,9 @@ size_t discreteLoad(size_t nr, employee * employees[]) {
     employees[employeeCounter]->tell();
 
     // employee[employeeCounter]->setVariables(empID, fName, lName, stat,rate, hrs);
-    std::cout <<
-    employees[employeeCounter]->calculateGrossPay() << '\n';
-    std::cout <<
-    employees[employeeCounter]->calculateTaxAmount() << '\n';
-    std::cout <<
-    employees[employeeCounter]->calculateNetPay() << '\n';
+    // employees[employeeCounter]->calculateGrossPay();
+    // employees[employeeCounter]->calculateTaxAmount();
+    // employees[employeeCounter]->calculateNetPay();
 
     employeeCounter++;
   }
@@ -434,83 +524,3 @@ size_t discreteLoad(std::vector<employee *> & empvec) {
 }
 
 #endif  /* INTERACTIVE_ */
-
-static
-auto dlm = std::string(76, '-');
-
-void printHeader(void) {
-  std::cout << '\n';
-  std::cout << std::setw(45) << "-PAYROLL REPORT-"
-            << std::endl;
-  std::cout << dlm
-            << std::endl;
-  std::cout << "F-NAME"
-               "  L-NAME"
-               "    EMPLOYEE-ID"
-               "    HW"
-               "   OT-HOURS"
-               "  GROSS"
-               "    TAX"
-               "   NETPAY"
-            << std::endl;
-  std::cout << dlm
-            << std::endl; 
-  // end printHeader() function
-
-}
-
-void showResults(size_t employeeCounter, employee * employees[]) {
-  for (size_t i_ = 0; i_ < employeeCounter; ++i_) {
-    employees[ i_ ]->printData();
-  }
-}
-
-void showResults(std::vector<employee *> & empvec) {
-  for (auto const em : empvec) {
-    em->printData();
-  }
-}
-
-//  ----+----|----+----|----+----|----+----|----+----|----+----|
-/*
- *  MARK: main()
- */
-int main(int argc, char const * argv[]) {
-
-  size_t employeeCounter = 0;
-
-  employee * employees[100];
-
-#ifdef INTERACTIVE_
-
-  employeeCounter = interactiveLoad(100, employees);
-
-#else   /* INTERACTIVE_ */
-
-  employeeCounter = discreteLoad(100, employees);
-
-  auto empvec = std::vector<employee *>();
-  discreteLoad(empvec);
-  // std::vector<employeeHourly *> empvec;
-
-#endif  /* INTERACTIVE_ */
-
-  printHeader();
-  showResults(employeeCounter, employees);
-
-  std::cout << dlm
-            << std::endl;
-
-#ifndef INTERACTIVE_
-  std::cout << "\n\n";
-
-  printHeader();
-  showResults(empvec);
-
-  std::cout << dlm
-            << std::endl;
-
-#endif  /* INTERACTIVE_ */
-
-  return 0;
-} //end main
