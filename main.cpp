@@ -8,6 +8,7 @@
 
 // using namespace std;
 
+//  ----+----|----+----|----+----|----+----|----+----|----+----|
 class employee {
 protected:
   double salary;
@@ -25,6 +26,46 @@ protected:
   std::string lastName;
 
 public:
+  employee(int empID = 0,
+           std::string fName = "",
+           std::string lName = "",
+           int stat = 0,
+           int rate = 0,
+           int hrs = 0) :
+           employeeID { empID },
+           firstName { fName },
+           lastName { lName },
+           payStat { stat },
+           hours { hrs } {
+    std::cout << "employee::employee() default ctor\n";    
+    if (payStat == 1) {
+      hourlyRate = rate;
+      salary = 0.0;
+    }
+    else if (payStat == 2) {
+      salary = rate;
+      hourlyRate = 0.0;
+    }
+    else {
+      salary = 0.0;
+      hourlyRate = 0.0;
+    }
+  };
+  employee(employee const & that) {
+    std::cout << "employee::employee() copy ctor\n";
+    employeeID = that.employeeID;
+    firstName  = that.firstName;
+    lastName   = that.lastName;
+    payStat    = that.payStat;
+    hourlyRate = that.hourlyRate;
+    salary     = that.salary;
+    hours      = that.hours;
+  }
+  employee(employee &&) = default;
+  employee & operator=(employee const &) = default;
+  virtual
+  ~employee() = default;
+
   void setVariables(int empID,
                     std::string fName,
                     std::string lName,
@@ -36,7 +77,7 @@ public:
     lastName = lName;
     payStat = stat;
 
-    if ( payStat == 1 ) {
+    if (payStat == 1) {
       hourlyRate = rate;
     }
     else {
@@ -63,8 +104,8 @@ public:
 
   void printData(void) const {
     std::cout << std::setprecision(2)
-              << setiosflags(std::ios::fixed |
-                             std::ios::showpoint);
+              << std::setiosflags(std::ios::fixed |
+                                  std::ios::showpoint);
     std::cout << std::setw( 7) << firstName
               << std::setw(10) << lastName
               << std::setw(12) << employeeID
@@ -77,9 +118,27 @@ public:
               << std::endl;
   } //end printData() function
 };  //end employee class
+//  ----+----|----+----|----+----|----+----|----+----|----+----|
 
 class employeeSalary : public employee {
 public:
+  employeeSalary(int empID = 0,
+           std::string fName = "",
+           std::string lName = "",
+           int stat = 0,
+           int rate = 0,
+           int hrs = 0) 
+    : employee(empID, fName, lName, stat, rate, hrs) {
+    std::cout << "employeeSalary::employeeSalary() default ctor\n";    
+  }
+  employeeSalary(employeeSalary const & that) : employee(that) {
+    std::cout << "employeeSalary::employeeSalary() copy ctor\n";
+  }
+  employeeSalary(employeeSalary &&) = default;
+  employeeSalary & operator=(employeeSalary const &) = default;
+  virtual
+  ~employeeSalary() = default;
+
   virtual
   double calculateGrossPay(void) override {
     std::cout << "employeeSalary::" << __func__ << "()\n";
@@ -106,15 +165,34 @@ public:
     std::cout << "employeeSalary::" << __func__ << "()\n";
   }
 };  //end EmployeeSalary class 
+//  ----+----|----+----|----+----|----+----|----+----|----+----|
 
 class employeeHourly : public employee {
 public:
+  // employeeHourly() = default;
+  employeeHourly(int empID = 0,
+           std::string fName = "",
+           std::string lName = "",
+           int stat = 0,
+           int rate = 0,
+           int hrs = 0)
+    : employee(empID, fName, lName, stat, rate, hrs) {
+    std::cout << "employeeHourly::employeeHourly() default ctor\n";
+  }
+  employeeHourly(employeeHourly const & that) : employee(that) {
+    std::cout << "employeeHourly::employeeHourly() copy ctor\n";
+  }
+  employeeHourly(employeeHourly &&) = default;
+  employeeHourly & operator=(employeeHourly const &) = default;
+  virtual
+  ~employeeHourly() = default;
+
   virtual
   double calculateGrossPay(void) override {
     std::cout << "employeeHourly::" << __func__ << "()\n";
 
     const double regPay = (40 * hourlyRate);//calculate regular hours
-    if ( hours > 40 ) {
+    if (hours > 40) {
       otHours = (hours - 40);//calculate OT hours
       otPay = (otHours * hourlyRate * 1.5);//calculate OT pay
       grossPay = (regPay + otPay);//calculate gross pay
@@ -132,10 +210,16 @@ public:
     std::cout << "employeeHourly::" << __func__ << "()\n";
   }
 };  //end EmployeeHourly class
+//  ----+----|----+----|----+----|----+----|----+----|----+----|
 
-int main(int argc, char const * argv[]) {
-  int employeeCounter = 0;
-  int totalEmployeeCount = 0;
+//  ----+----|----+----|----+----|----+----|----+----|----+----|
+
+#ifdef INTERACTIVE_
+
+static
+size_t interactiveLoad(size_t nr, employee * employees[]) {
+  size_t employeeCounter = 0;
+  size_t totalEmployeeCount = 0;
   std::string fName;
   std::string lName;
   int empID = 0;
@@ -143,13 +227,10 @@ int main(int argc, char const * argv[]) {
   int rate = 0;
   int hrs = 0;
 
-#ifdef INTERACTIVE_
   std::cout << "Enter # of employees you want to process:  ";
   std::cin >> totalEmployeeCount;
 
-  employee * employee[100];
-
-  while ( employeeCounter < totalEmployeeCount ) {
+  while (employeeCounter < totalEmployeeCount) {
     stat = 0;
     std::cout << "Is employee " << employeeCounter + 1
               << " hourly or salary? (enter 1 for hourly / 2 for salary): ";
@@ -183,15 +264,15 @@ int main(int argc, char const * argv[]) {
       std::cin.clear();
       std::cin.ignore(INT_MAX, '\n');
 
-      employee[employeeCounter] = new employeeHourly();
+      employees[employeeCounter] = new employeeHourly();
 
-      employee[employeeCounter]->setVariables( empID, fName, lName, stat, rate, hrs );
+      employees[employeeCounter]->setVariables( empID, fName, lName, stat, rate, hrs );
       std::cout <<
-      employee[employeeCounter]->calculateGrossPay() << '\n';
+      employees[employeeCounter]->calculateGrossPay() << '\n';
       std::cout <<
-      employee[employeeCounter]->calculateTaxAmount() << '\n';
+      employees[employeeCounter]->calculateTaxAmount() << '\n';
       std::cout <<
-      employee[employeeCounter]->calculateNetPay() << '\n';
+      employees[employeeCounter]->calculateNetPay() << '\n';
 
       std::cout << std::endl
                 << std::endl;
@@ -224,15 +305,15 @@ int main(int argc, char const * argv[]) {
       std::cin.clear();
       std::cin.ignore(INT_MAX, '\n');
 
-      employee[employeeCounter] = new employeeSalary();
+      employees[employeeCounter] = new employeeSalary();
 
-      employee[employeeCounter]->setVariables(empID, fName, lName, stat,rate, hrs);
+      employees[employeeCounter]->setVariables(empID, fName, lName, stat,rate, hrs);
       std::cout <<
-      employee[employeeCounter]->calculateGrossPay() << '\n';
+      employees[employeeCounter]->calculateGrossPay() << '\n';
       std::cout <<
-      employee[employeeCounter]->calculateTaxAmount() << '\n';
+      employees[employeeCounter]->calculateTaxAmount() << '\n';
       std::cout <<
-      employee[employeeCounter]->calculateNetPay() << '\n';
+      employees[employeeCounter]->calculateNetPay() << '\n';
 
       std::cout << std::endl
                 << std::endl;
@@ -240,23 +321,36 @@ int main(int argc, char const * argv[]) {
       employeeCounter++;
     } //end else
   }//end while
+
+  return employeeCounter;
+}
+
 #else   /* INTERACTIVE_ */
-  employee * employee[100];
-  employeeCounter = 0;
 
-  struct sampledata {
-    int empId;
-    std::string forname;
-    std::string surname;
-    int rate;
-    int stat;
-    int hrs;
-  };
+struct sampledata {
+  int empId;
+  std::string forname;
+  std::string surname;
+  int rate;
+  int stat;
+  int hrs;
+};
 
-  std::vector<sampledata> const sdata {
-    { 11, "Norma", "Snockers", 26, 2, 40, },
-    { 21, "Irma",  "Naliias",  15, 1, 50, },
-  };
+static
+std::vector<sampledata> const sdata {
+  { 11, "Norma", "Snockers", 26, 2, 40, },
+  { 21, "Irma",  "Naliias",  15, 1, 50, },
+};
+
+static
+size_t discreteLoad(size_t nr, employee * employees[]) {
+  size_t employeeCounter = 0;
+  std::string fName;
+  std::string lName;
+  int empID = 0;
+  int stat = 0;
+  int rate = 0;
+  int hrs = 0;
 
   for (auto const & sd : sdata) {
     fName = sd.forname;
@@ -267,45 +361,139 @@ int main(int argc, char const * argv[]) {
     hrs = sd.hrs;
 
     if (stat == 2) {
-      employee[employeeCounter] = new employeeSalary();
+      employees[employeeCounter] = new employeeSalary(
+        empID, fName, lName, stat,rate, hrs);
     }
     else {
-      employee[employeeCounter] = new employeeHourly();
+      employees[employeeCounter] = new employeeHourly(
+        empID, fName, lName, stat,rate, hrs);
     }
 
-    employee[employeeCounter]->tell();
+    employees[employeeCounter]->tell();
 
-    employee[employeeCounter]->setVariables(empID, fName, lName, stat,rate, hrs);
+    // employee[employeeCounter]->setVariables(empID, fName, lName, stat,rate, hrs);
     std::cout <<
-    employee[employeeCounter]->calculateGrossPay() << '\n';
+    employees[employeeCounter]->calculateGrossPay() << '\n';
     std::cout <<
-    employee[employeeCounter]->calculateTaxAmount() << '\n';
+    employees[employeeCounter]->calculateTaxAmount() << '\n';
     std::cout <<
-    employee[employeeCounter]->calculateNetPay() << '\n';
+    employees[employeeCounter]->calculateNetPay() << '\n';
 
     employeeCounter++;
   }
 
+  return employeeCounter;
+}
+static
+size_t discreteLoad(std::vector<employee *> & empvec) {
+  std::string fName;
+  std::string lName;
+  int empID = 0;
+  int stat = 0;
+  int rate = 0;
+  int hrs = 0;
+
+  for (auto const & sd : sdata) {
+    fName = sd.forname;
+    lName = sd.surname;
+    empID = sd.empId;;
+    stat = sd.stat;
+    rate = sd.rate;
+    hrs = sd.hrs;
+
+    if (sd.stat == 2) {
+      empvec.push_back(
+        new employeeSalary(empID, fName, lName, stat, rate, hrs)
+      );
+    }
+    else {
+      empvec.push_back(
+        new employeeHourly(empID, fName, lName, stat, rate, hrs)
+      );
+    }
+  }
+
+  return empvec.size();
+}
+
 #endif  /* INTERACTIVE_ */
 
-  auto dlm = std::string(76, '-');
+static
+auto dlm = std::string(76, '-');
+
+void printHeader(void) {
+  std::cout << '\n';
   std::cout << std::setw(45) << "-PAYROLL REPORT-"
             << std::endl;
   std::cout << dlm
             << std::endl;
-  std::cout << "F-NAME  L-NAME    EMPLOYEE-ID    HW   OT-HOURS  GROSS"
-    "    TAX   NETPAY        "
+  std::cout << "F-NAME"
+               "  L-NAME"
+               "    EMPLOYEE-ID"
+               "    HW"
+               "   OT-HOURS"
+               "  GROSS"
+               "    TAX"
+               "   NETPAY"
             << std::endl;
   std::cout << dlm
             << std::endl; 
   // end printHeader() function
 
-  for ( int i_ = 0; i_ < employeeCounter; ++i_ ) {
-    employee[ i_ ]->printData();
+}
+
+void showResults(size_t employeeCounter, employee * employees[]) {
+  for (size_t i_ = 0; i_ < employeeCounter; ++i_) {
+    employees[ i_ ]->printData();
   }
+}
+
+void showResults(std::vector<employee *> & empvec) {
+  for (auto const em : empvec) {
+    em->printData();
+  }
+}
+
+//  ----+----|----+----|----+----|----+----|----+----|----+----|
+/*
+ *  MARK: main()
+ */
+int main(int argc, char const * argv[]) {
+
+  size_t employeeCounter = 0;
+
+  employee * employees[100];
+
+#ifdef INTERACTIVE_
+
+  employeeCounter = interactiveLoad(100, employees);
+
+#else   /* INTERACTIVE_ */
+
+  employeeCounter = discreteLoad(100, employees);
+
+  auto empvec = std::vector<employee *>();
+  discreteLoad(empvec);
+  // std::vector<employeeHourly *> empvec;
+
+#endif  /* INTERACTIVE_ */
+
+  printHeader();
+  showResults(employeeCounter, employees);
 
   std::cout << dlm
             << std::endl;
+
+#ifndef INTERACTIVE_
+  std::cout << "\n\n";
+
+  printHeader();
+  showResults(empvec);
+
+  std::cout << dlm
+            << std::endl;
+
+#endif  /* INTERACTIVE_ */
 
   return 0;
 } //end main
