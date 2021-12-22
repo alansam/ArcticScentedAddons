@@ -50,7 +50,8 @@ public:
       salary = 0.0;
       hourlyRate = 0.0;
     }
-  };
+  }
+
   employee(employee const & that) {
     std::cout << "employee::employee() copy ctor\n";
     employeeID = that.employeeID;
@@ -92,13 +93,17 @@ public:
   virtual void tell(void) const = 0;
 
   double calculateTaxAmount(void) {
+    std::cout << "employee::" << __func__ << "() = ";
     taxRate = .30; //set a flat taxrate 30%
     taxAmount = grossPay * taxRate; //formula to calculate tax amount
+    std::cout << taxAmount << '\n';
     return taxAmount;
   } //end calculateTaxAmount() function
 
   double calculateNetPay(void) {
+    std::cout << "employee::" << __func__ << "() = ";
     netPay = grossPay - taxAmount;
+    std::cout << netPay << '\n';
     return netPay;
   } //end
 
@@ -112,8 +117,8 @@ public:
               << std::setw( 8) << hours
               << std::setw( 6) << otHours
               << std::setw(10) << grossPay
+              << std::setw( 8) << taxAmount
               << std::setw( 8) << netPay
-              << std::setw( 8) << otPay
               << std::setw( 7) << ((payStat == 2) ? "Sal" : "Hr")
               << std::endl;
   } //end printData() function
@@ -129,7 +134,11 @@ public:
            int rate = 0,
            int hrs = 0) 
     : employee(empID, fName, lName, stat, rate, hrs) {
-    std::cout << "employeeSalary::employeeSalary() default ctor\n";    
+    std::cout << "employeeSalary::employeeSalary() default ctor\n";
+
+    calculateGrossPay();
+    calculateTaxAmount();
+    calculateNetPay();
   }
   employeeSalary(employeeSalary const & that) : employee(that) {
     std::cout << "employeeSalary::employeeSalary() copy ctor\n";
@@ -141,7 +150,7 @@ public:
 
   virtual
   double calculateGrossPay(void) override {
-    std::cout << "employeeSalary::" << __func__ << "()\n";
+    std::cout << "employeeSalary::" << __func__ << "() = ";
 
     double regPay = salary / 52;
     double hourlyRate = regPay / 40;
@@ -157,6 +166,7 @@ public:
       grossPay = regPay;
     }
 
+    std::cout << grossPay << '\n';
     return grossPay;
   }
 
@@ -178,7 +188,12 @@ public:
            int hrs = 0)
     : employee(empID, fName, lName, stat, rate, hrs) {
     std::cout << "employeeHourly::employeeHourly() default ctor\n";
+
+    calculateGrossPay();
+    calculateTaxAmount();
+    calculateNetPay();
   }
+
   employeeHourly(employeeHourly const & that) : employee(that) {
     std::cout << "employeeHourly::employeeHourly() copy ctor\n";
   }
@@ -189,7 +204,7 @@ public:
 
   virtual
   double calculateGrossPay(void) override {
-    std::cout << "employeeHourly::" << __func__ << "()\n";
+    std::cout << "employeeHourly::" << __func__ << "() = ";
 
     const double regPay = (40 * hourlyRate);//calculate regular hours
     if (hours > 40) {
@@ -202,6 +217,8 @@ public:
       otPay = 0.0;
       grossPay = regPay;
     }//end else clause for four hours
+
+    std::cout << grossPay << '\n';
     return grossPay;
   } //end calculateGrossPay() function
 
@@ -338,8 +355,8 @@ struct sampledata {
 
 static
 std::vector<sampledata> const sdata {
-  { 11, "Norma", "Snockers", 26, 2, 40, },
-  { 21, "Irma",  "Naliias",  15, 1, 50, },
+  { 11, "Norma", "Snockers", 40'000, 2, 48, },
+  { 21, "Irma",   "Nalias",      15, 1, 50, },
 };
 
 static
@@ -362,11 +379,11 @@ size_t discreteLoad(size_t nr, employee * employees[]) {
 
     if (stat == 2) {
       employees[employeeCounter] = new employeeSalary(
-        empID, fName, lName, stat,rate, hrs);
+        empID, fName, lName, stat, rate, hrs);
     }
     else {
       employees[employeeCounter] = new employeeHourly(
-        empID, fName, lName, stat,rate, hrs);
+        empID, fName, lName, stat, rate, hrs);
     }
 
     employees[employeeCounter]->tell();
