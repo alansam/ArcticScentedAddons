@@ -114,8 +114,8 @@ public:
     std::cout << std::setw( 7) << firstName
               << std::setw(10) << lastName
               << std::setw(12) << employeeID
-              << std::setw( 8) << hours
-              << std::setw( 6) << otHours
+              << std::setw( 4) << hours
+              << std::setw(10) << otHours
               << std::setw(10) << grossPay
               << std::setw( 8) << taxAmount
               << std::setw( 8) << netPay
@@ -301,14 +301,15 @@ void printHeader(void) {
             << std::endl;
   std::cout << dlm
             << std::endl;
-  std::cout << "F-NAME"
-               "  L-NAME"
-               "    EMPLOYEE-ID"
-               "    HW"
-               "   OT-HOURS"
-               "  GROSS"
-               "    TAX"
-               "   NETPAY"
+  std::cout << std::setw( 7) << "F-NAME"
+            << std::setw(10) << "L-NAME"
+            << std::setw(12) << "EMPLOYEE-ID"
+            << std::setw( 4) << "HW"
+            << std::setw(10) << "OT-HOURS"
+            << std::setw(10) << "GROSS"
+            << std::setw( 8) << "TAX"
+            << std::setw( 8) << "NETPAY"
+            << std::setw( 7) << "S/H"
             << std::endl;
   std::cout << dlm
             << std::endl; 
