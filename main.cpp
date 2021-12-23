@@ -1,235 +1,16 @@
 
-#include <fstream>
 #include <iostream>
 #include <iomanip>
 #include <string>
 #include <vector>
 #include <climits>
 
-// using namespace std;
+#include "employee.hpp"
 
-//  ----+----|----+----|----+----|----+----|----+----|----+----|
-class employee {
-protected:
-  double salary;
-  double hourlyRate;
-  double taxRate;
-  double taxAmount;
-  double grossPay;
-  double netPay;
-  double otPay;
-  int hours;
-  int otHours;
-  int payStat;
-  int employeeID;
-  std::string firstName;
-  std::string lastName;
 
-public:
-  employee(int empID = 0,
-           std::string fName = "",
-           std::string lName = "",
-           int stat = 0,
-           int rate = 0,
-           int hrs = 0) :
-           employeeID { empID },
-           firstName { fName },
-           lastName { lName },
-           payStat { stat },
-           hours { hrs } {
-    std::cout << "employee::employee() default ctor\n";    
-    if (payStat == 1) {
-      hourlyRate = rate;
-      salary = 0.0;
-    }
-    else if (payStat == 2) {
-      salary = rate;
-      hourlyRate = 0.0;
-    }
-    else {
-      salary = 0.0;
-      hourlyRate = 0.0;
-    }
-  }
-
-  employee(employee const & that) {
-    std::cout << "employee::employee() copy ctor\n";
-    employeeID = that.employeeID;
-    firstName  = that.firstName;
-    lastName   = that.lastName;
-    payStat    = that.payStat;
-    hourlyRate = that.hourlyRate;
-    salary     = that.salary;
-    hours      = that.hours;
-  }
-  employee(employee &&) = default;
-  employee & operator=(employee const &) = default;
-  virtual
-  ~employee() = default;
-
-  void setVariables(int empID,
-                    std::string fName,
-                    std::string lName,
-                    int stat,
-                    int rate,
-                    int hrs) {
-    employeeID = empID;
-    firstName = fName;
-    lastName = lName;
-    payStat = stat;
-
-    if (payStat == 1) {
-      hourlyRate = rate;
-    }
-    else {
-      salary = rate;
-    }
-
-    hours = hrs;
-  } //declare function to calculate gross pay
-
-// public:
-  virtual double calculateGrossPay(void) = 0;
-  virtual void tell(void) const = 0;
-
-  double calculateTaxAmount(void) {
-    std::cout << "employee::" << __func__ << "() = ";
-    taxRate = .30; //set a flat taxrate 30%
-    taxAmount = grossPay * taxRate; //formula to calculate tax amount
-    std::cout << taxAmount << '\n';
-    return taxAmount;
-  } //end calculateTaxAmount() function
-
-  double calculateNetPay(void) {
-    std::cout << "employee::" << __func__ << "() = ";
-    netPay = grossPay - taxAmount;
-    std::cout << netPay << '\n';
-    return netPay;
-  } //end
-
-  void printData(void) const {
-    std::cout << std::setprecision(2)
-              << std::setiosflags(std::ios::fixed |
-                                  std::ios::showpoint);
-    std::cout << std::setw( 7) << firstName
-              << std::setw(10) << lastName
-              << std::setw(12) << employeeID
-              << std::setw( 4) << hours
-              << std::setw(10) << otHours
-              << std::setw(10) << grossPay
-              << std::setw( 8) << taxAmount
-              << std::setw( 8) << netPay
-              << std::setw( 7) << ((payStat == 2) ? "Sal" : "Hr")
-              << std::endl;
-  } //end printData() function
-};  //end employee class
-//  ----+----|----+----|----+----|----+----|----+----|----+----|
-
-class employeeSalary : public employee {
-public:
-  employeeSalary(int empID = 0,
-           std::string fName = "",
-           std::string lName = "",
-           int stat = 0,
-           int rate = 0,
-           int hrs = 0) 
-    : employee(empID, fName, lName, stat, rate, hrs) {
-    std::cout << "employeeSalary::employeeSalary() default ctor\n";
-
-    calculateGrossPay();
-    calculateTaxAmount();
-    calculateNetPay();
-  }
-  employeeSalary(employeeSalary const & that) : employee(that) {
-    std::cout << "employeeSalary::employeeSalary() copy ctor\n";
-  }
-  employeeSalary(employeeSalary &&) = default;
-  employeeSalary & operator=(employeeSalary const &) = default;
-  virtual
-  ~employeeSalary() = default;
-
-  virtual
-  double calculateGrossPay(void) override {
-    std::cout << "employeeSalary::" << __func__ << "() = ";
-
-    double regPay = salary / 52;
-    double hourlyRate = regPay / 40;
-
-    if (hours > 40) {
-      otHours = (hours - 40);//calculate OT hours
-      otPay = (otHours * hourlyRate);//calculate OT pay
-      grossPay = (regPay + otPay);
-    }
-    else if (hours <= 40) {
-      otHours = 0;
-      otPay = 0.0;
-      grossPay = regPay;
-    }
-
-    std::cout << grossPay << '\n';
-    return grossPay;
-  }
-
-  virtual
-  void tell(void) const override {
-    std::cout << "employeeSalary::" << __func__ << "()\n";
-  }
-};  //end EmployeeSalary class 
-//  ----+----|----+----|----+----|----+----|----+----|----+----|
-
-class employeeHourly : public employee {
-public:
-  // employeeHourly() = default;
-  employeeHourly(int empID = 0,
-           std::string fName = "",
-           std::string lName = "",
-           int stat = 0,
-           int rate = 0,
-           int hrs = 0)
-    : employee(empID, fName, lName, stat, rate, hrs) {
-    std::cout << "employeeHourly::employeeHourly() default ctor\n";
-
-    calculateGrossPay();
-    calculateTaxAmount();
-    calculateNetPay();
-  }
-
-  employeeHourly(employeeHourly const & that) : employee(that) {
-    std::cout << "employeeHourly::employeeHourly() copy ctor\n";
-  }
-  employeeHourly(employeeHourly &&) = default;
-  employeeHourly & operator=(employeeHourly const &) = default;
-  virtual
-  ~employeeHourly() = default;
-
-  virtual
-  double calculateGrossPay(void) override {
-    std::cout << "employeeHourly::" << __func__ << "() = ";
-
-    const double regPay = (40 * hourlyRate);//calculate regular hours
-    if (hours > 40) {
-      otHours = (hours - 40);//calculate OT hours
-      otPay = (otHours * hourlyRate * 1.5);//calculate OT pay
-      grossPay = (regPay + otPay);//calculate gross pay
-    } //enf if clause for gross pay with overtime
-    else {
-      otHours = 0;
-      otPay = 0.0;
-      grossPay = regPay;
-    }//end else clause for four hours
-
-    std::cout << grossPay << '\n';
-    return grossPay;
-  } //end calculateGrossPay() function
-
-  virtual
-  void tell(void) const override {
-    std::cout << "employeeHourly::" << __func__ << "()\n";
-  }
-};  //end EmployeeHourly class
-//  ----+----|----+----|----+----|----+----|----+----|----+----|
-
-//  ----+----|----+----|----+----|----+----|----+----|----+----|
+//  MARK: - Global Constants
+static
+auto dlm = std::string(76, '-');
 
 #ifdef INTERACTIVE_
 static
@@ -243,9 +24,6 @@ static
 size_t discreteLoad(std::vector<employee *> & empvec);
 
 #endif  /* INTERACTIVE_ */
-
-static
-auto dlm = std::string(76, '-');
 
 void printHeader(void);
 void showResults(size_t employeeCounter, employee * employees[]);
@@ -479,8 +257,6 @@ size_t discreteLoad(size_t nr, employee * employees[]) {
       employees[employeeCounter] = new employeeHourly(
         empID, fName, lName, stat, rate, hrs);
     }
-
-    employees[employeeCounter]->tell();
 
     // employee[employeeCounter]->setVariables(empID, fName, lName, stat,rate, hrs);
     // employees[employeeCounter]->calculateGrossPay();
