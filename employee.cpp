@@ -13,7 +13,7 @@
  */
 employee::employee(int empID, std::string fName, std::string lName, int stat, int rate, int hrs)
 : employeeID { empID }, firstName { fName }, lastName { lName }, payStat { stat }, hours { hrs } {
-  std::cout << "employee::employee() default ctor\n";
+  std::cout << "@[" << std::setw(18) << this << "] employee::employee() default ctor\n";
   if (payStat == 1) {
     hourlyRate = rate;
     salary = 0.0;
@@ -32,7 +32,7 @@ employee::employee(int empID, std::string fName, std::string lName, int stat, in
  *  MARK: employee::employee() copy ctor.
  */
 employee::employee(employee const & that) {
-  std::cout << "employee::employee() copy ctor\n";
+  std::cout << "@[" << std::setw(18) << this << "] employee::employee() copy ctor\n";
   employeeID = that.employeeID;
   firstName  = that.firstName;
   lastName   = that.lastName;
@@ -43,10 +43,17 @@ employee::employee(employee const & that) {
 }
 
 /*
+ *  MARK: employee::~employee()
+ */
+employee::~employee() {
+  std::cout << "@[" << std::setw(18) << this << "] employee::~employee() dtor\n";
+}
+
+/*
  *  MARK: employee::calculateTaxAmount()
  */
 double employee::calculateTaxAmount(void) {
-  std::cout << "employee::" << __func__ << "() = ";
+  std::cout << "@[" << std::setw(18) << this << "] employee::" << __func__ << "() = ";
   taxRate = .30; //set a flat taxrate 30%
   taxAmount = grossPay * taxRate; //formula to calculate tax amount
 
@@ -58,7 +65,7 @@ double employee::calculateTaxAmount(void) {
  *  MARK: employee::calculateNetPay()
  */
 double employee::calculateNetPay(void) {
-  std::cout << "employee::" << __func__ << "() = ";
+  std::cout << "@[" << std::setw(18) << this << "] employee::" << __func__ << "() = ";
   netPay = grossPay - taxAmount;
 
   std::cout << netPay << '\n';
@@ -91,7 +98,7 @@ void employee::printData(void) const {
  */
 employeeSalary::employeeSalary(int empID, std::string fName, std::string lName, int stat, int rate, int hrs)
 : employee(empID, fName, lName, stat, rate, hrs) {
-  std::cout << "employeeSalary::employeeSalary() default ctor\n";
+  std::cout << "@[" << std::setw(18) << this << "] employeeSalary::employeeSalary() default ctor\n";
 
   calculateGrossPay();
   calculateTaxAmount();
@@ -102,14 +109,21 @@ employeeSalary::employeeSalary(int empID, std::string fName, std::string lName, 
  *  MARK: employeeSalary::employeeSalary() copy ctor.
  */
 employeeSalary::employeeSalary(employeeSalary const & that) : employee(that) {
-  std::cout << "employeeSalary::employeeSalary() copy ctor\n";
+  std::cout << "@[" << std::setw(18) << this << "] employeeSalary::employeeSalary() copy ctor\n";
+}
+
+/*
+ *  MARK: employeeSalary::~employeeSalary()
+ */
+employeeSalary::~employeeSalary() {
+  std::cout << "@[" << std::setw(18) << this << "] employeeSalary::~employeeSalary() dtor\n";
 }
 
 /*
  *  MARK: employeeSalary::calculateGrossPay()
  */
 double employeeSalary::calculateGrossPay(void) {
-  std::cout << "employeeSalary::" << __func__ << "() = ";
+  std::cout << "@[" << std::setw(18) << this << "] employeeSalary::" << __func__ << "() = ";
 
   double regPay = salary / 52;
   double hourlyRate = regPay / 40;
@@ -136,7 +150,7 @@ double employeeSalary::calculateGrossPay(void) {
  */
 employeeHourly::employeeHourly(int empID, std::string fName, std::string lName, int stat, int rate, int hrs)
 : employee(empID, fName, lName, stat, rate, hrs) {
-  std::cout << "employeeHourly::employeeHourly() default ctor\n";
+  std::cout << "@[" << std::setw(18) << this << "] employeeHourly::employeeHourly() default ctor\n";
 
   calculateGrossPay();
   calculateTaxAmount();
@@ -147,14 +161,21 @@ employeeHourly::employeeHourly(int empID, std::string fName, std::string lName, 
  *  MARK: employeeHourly::employeeHourly() copy ctor.
  */
 employeeHourly::employeeHourly(employeeHourly const & that) : employee(that) {
-  std::cout << "employeeHourly::employeeHourly() copy ctor\n";
+  std::cout << "@[" << std::setw(18) << this << "] employeeHourly::employeeHourly() copy ctor\n";
+}
+
+/*
+ *  MARK: employeeHourly::~employeeHourly()
+ */
+employeeHourly::~employeeHourly() {
+  std::cout << "@[" << std::setw(18) << this << "] employeeHourly::~employeeHourly() dtor\n";
 }
 
 /*
  *  MARK: employeeHourly::calculateGrossPay
  */
 double employeeHourly::calculateGrossPay(void) {
-  std::cout << "employeeHourly::" << __func__ << "() = ";
+  std::cout << "@[" << std::setw(18) << this << "] employeeHourly::" << __func__ << "() = ";
 
   const double regPay = (40 * hourlyRate);//calculate regular hours
   if ( hours > 40 ) {

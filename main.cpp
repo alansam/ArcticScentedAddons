@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <string>
 #include <vector>
+#include <memory>
 #include <climits>
 
 #include "employee.hpp"
@@ -22,12 +23,20 @@ static
 size_t discreteLoad(size_t nr, employee * employees[]);
 static
 size_t discreteLoad(std::vector<employee *> & empvec);
+static
+size_t discreteLoad(std::vector<std::unique_ptr<employee>> & empvec);
+static
+void discreteCleanup(size_t nr, employee * employees[]);
+static
+void discreteCleanup(std::vector<employee *> & empvec);
 
 #endif  /* INTERACTIVE_ */
+
 
 void printHeader(void);
 void showResults(size_t employeeCounter, employee * employees[]);
 void showResults(std::vector<employee *> & empvec);
+void showResults(std::vector<std::unique_ptr<employee>> & empvec);
 
 //  ----+----|----+----|----+----|----+----|----+----|----+----|
 /*
@@ -49,7 +58,9 @@ int main(int argc, char const * argv[]) {
 
   auto empvec = std::vector<employee *>();
   discreteLoad(empvec);
-  // std::vector<employeeHourly *> empvec;
+
+  auto empuqp = std::vector<std::unique_ptr<employee>>();
+  discreteLoad(empuqp);
 
 #endif  /* INTERACTIVE_ */
 
@@ -60,10 +71,21 @@ int main(int argc, char const * argv[]) {
             << std::endl;
 
 #ifndef INTERACTIVE_
+
+  discreteCleanup(employeeCounter, employees);
+
   std::cout << "\n\n";
 
   printHeader();
   showResults(empvec);
+
+  std::cout << dlm
+            << std::endl;
+
+  discreteCleanup(empvec);
+
+  printHeader();
+  showResults(empuqp);
 
   std::cout << dlm
             << std::endl;
@@ -73,6 +95,9 @@ int main(int argc, char const * argv[]) {
   return 0;
 } //end main
 
+/*
+ *  MARK: printHeader()
+ */
 void printHeader(void) {
   std::cout << '\n';
   std::cout << std::setw(45) << "-PAYROLL REPORT-"
@@ -94,20 +119,39 @@ void printHeader(void) {
   // end printHeader() function
 }
 
+/*
+ *  MARK: showResults()
+ */
 void showResults(size_t employeeCounter, employee * employees[]) {
   for (size_t i_ = 0; i_ < employeeCounter; ++i_) {
     employees[ i_ ]->printData();
   }
 }
 
+/*
+ *  MARK: showResults()
+ */
 void showResults(std::vector<employee *> & empvec) {
   for (auto const em : empvec) {
     em->printData();
   }
 }
 
+/*
+ *  MARK: showResults()
+ */
+void showResults(std::vector<std::unique_ptr<employee>> & empvec) {
+  for (auto const & uqem : empvec) {
+    auto em = uqem.get();
+    em->printData();
+  }
+}
+
 #ifdef INTERACTIVE_
 
+/*
+ *  MARK: interactiveLoad()
+ */
 static
 size_t interactiveLoad(size_t nr, employee * employees[]) {
   size_t employeeCounter = 0;
@@ -169,7 +213,7 @@ size_t interactiveLoad(size_t nr, employee * employees[]) {
       employeeCounter++;
     } //end if 
     else {
-    //if employee is NOT hourly (Salary clause)
+      //if employee is NOT hourly (Salary clause)
       std::cout << "instantialting a SALARY employee object in herited from base class employee"
                 << std::endl
                 << std::endl;
@@ -231,6 +275,9 @@ std::vector<sampledata> const sdata {
   { 21, "Irma",   "Nalias",      15, 1, 50, },
 };
 
+/*
+ *  MARK: discreteLoad()
+ */
 static
 size_t discreteLoad(size_t nr, employee * employees[]) {
   size_t employeeCounter = 0;
@@ -258,16 +305,15 @@ size_t discreteLoad(size_t nr, employee * employees[]) {
         empID, fName, lName, stat, rate, hrs);
     }
 
-    // employee[employeeCounter]->setVariables(empID, fName, lName, stat,rate, hrs);
-    // employees[employeeCounter]->calculateGrossPay();
-    // employees[employeeCounter]->calculateTaxAmount();
-    // employees[employeeCounter]->calculateNetPay();
-
     employeeCounter++;
   }
 
   return employeeCounter;
 }
+
+/*
+ *  MARK: discreteLoad()
+ */
 static
 size_t discreteLoad(std::vector<employee *> & empvec) {
   std::string fName;
@@ -298,6 +344,58 @@ size_t discreteLoad(std::vector<employee *> & empvec) {
   }
 
   return empvec.size();
+}
+
+/*
+ *  MARK: discreteLoad()
+ */
+static
+size_t discreteLoad(std::vector<std::unique_ptr<employee>> & empvec) {
+  std::string fName;
+  std::string lName;
+  int empID = 0;
+  int stat = 0;
+  int rate = 0;
+  int hrs = 0;
+
+  for (auto const & sd : sdata) {
+    fName = sd.forname;
+    lName = sd.surname;
+    empID = sd.empId;;
+    stat = sd.stat;
+    rate = sd.rate;
+    hrs = sd.hrs;
+
+    if (sd.stat == 2) {
+      empvec.push_back(std::make_unique<employeeSalary>(empID, fName, lName, stat, rate, hrs));
+    }
+    else {
+      empvec.push_back(std::make_unique<employeeHourly>(empID, fName, lName, stat, rate, hrs));
+    }
+  }
+
+  return empvec.size();
+}
+
+/*
+ *  MARK: discreteCleanup()
+ */
+static
+void discreteCleanup(size_t nr, employee * employees[]) {
+  for (size_t e_ = 0; e_ < nr; ++e_) {
+    employee * eply = employees[e_];
+    delete eply;
+  }
+}
+
+/*
+ *  MARK: discreteCleanup()
+ */
+static
+void discreteCleanup(std::vector<employee *> & empvec) {
+  for (auto eply : empvec) {
+    delete eply;
+  }
 }
 
 #endif  /* INTERACTIVE_ */

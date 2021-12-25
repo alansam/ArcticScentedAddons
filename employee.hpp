@@ -12,7 +12,6 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
-#include <vector>
 #include <climits>
 
 //  ----+----|----+----|----+----|----+----|----+----|----+----|----+----|
@@ -46,7 +45,7 @@ public:
   virtual
   employee & operator=(employee const &) = default;
   virtual
-  ~employee() = default;
+  ~employee();
 
   //  pure virtual function.
   virtual double calculateGrossPay(void) = 0;
@@ -75,7 +74,7 @@ public:
   virtual
   employeeSalary & operator=(employeeSalary const &) = default;
   virtual
-  ~employeeSalary() = default;
+  ~employeeSalary();
 
   //  Implement pure virtusl function
   virtual
@@ -99,7 +98,7 @@ public:
   virtual
   employeeHourly & operator=(employeeHourly const &) = default;
   virtual
-  ~employeeHourly() = default;
+  ~employeeHourly();
 
   //  Implement pure virtusl function
   virtual
