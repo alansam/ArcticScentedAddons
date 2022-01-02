@@ -56,12 +56,6 @@ int main(int argc, char const * argv[]) {
 
   employeeCounter = discreteLoad(100, employees);
 
-  auto empvec = std::vector<employee *>();
-  discreteLoad(empvec);
-
-  auto empuqp = std::vector<std::unique_ptr<employee>>();
-  discreteLoad(empuqp);
-
 #endif  /* INTERACTIVE_ */
 
   printHeader();
@@ -73,6 +67,10 @@ int main(int argc, char const * argv[]) {
 #ifndef INTERACTIVE_
 
   discreteCleanup(employeeCounter, employees);
+  std::cout << '\n';
+
+  auto empvec = std::vector<employee *>();
+  discreteLoad(empvec);
 
   std::cout << "\n\n";
 
@@ -84,11 +82,18 @@ int main(int argc, char const * argv[]) {
 
   discreteCleanup(empvec);
 
+  std::cout << "\n\n";
+
+  auto empuqp = std::vector<std::unique_ptr<employee>>();
+  discreteLoad(empuqp);
+
   printHeader();
   showResults(empuqp);
 
   std::cout << dlm
             << std::endl;
+
+  std::cout << "\n\n";
 
 #endif  /* INTERACTIVE_ */
 
